@@ -13,8 +13,8 @@
   body { min-height:100vh;display:flex; }
   .sidebar { width:220px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);padding:1.5rem 1rem;position:fixed;top:0;left:0;bottom:0;z-index:10;display:flex;flex-direction:column;gap:0.25rem; }
   .sidebar-logo { display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;padding:0 0.5rem; }
-  .logo-icon { width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-  .logo-icon svg { width:18px;height:18px;fill:white; }
+  .logo-icon { width:38px;height:38px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 12px rgba(24,119,242,0.4); }
+  .logo-icon svg { width:20px;height:20px;fill:white; }
   .logo-text { font-size:13px;font-weight:600;color:var(--text);line-height:1.2; }
   .logo-sub { font-size:11px;color:var(--text3); }
   .sidebar-label { font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;padding:1rem 0.5rem 0.25rem; }
@@ -106,7 +106,10 @@
 <nav class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-    <div><div class="logo-text">Ads Report</div><div class="logo-sub">TE Digital</div></div>
+    <div>
+      <div style="font-size:15px;font-weight:700;color:#fff;letter-spacing:0.02em">TE Digital</div>
+      <div style="font-size:10px;color:var(--text3);letter-spacing:0.05em;text-transform:uppercase">Ads Report</div>
+    </div>
   </div>
   <div class="sidebar-label">เมนู</div>
   <button class="sidebar-item active" onclick="showPage('dashboard',this)">
@@ -150,13 +153,20 @@
       <div class="config-row3">
         <div>
           <div class="field-label">ช่วงเวลา</div>
-          <select id="datePreset">
+          <select id="datePreset" onchange="toggleCustomDate()">
             <option value="last_7d">7 วันที่ผ่านมา</option>
             <option value="last_30d" selected>30 วันที่ผ่านมา</option>
             <option value="last_90d">90 วันที่ผ่านมา</option>
             <option value="this_month">เดือนนี้</option>
             <option value="last_month">เดือนที่แล้ว</option>
+            <option value="custom">กำหนดเอง</option>
           </select>
+          <div id="customDateRange" style="display:none;margin-top:8px;display:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div><div class="field-label">วันเริ่ม</div><input type="date" id="dateFrom" /></div>
+              <div><div class="field-label">วันสิ้นสุด</div><input type="date" id="dateTo" /></div>
+            </div>
+          </div>
         </div>
         <div>
           <div class="field-label">Level</div>
@@ -404,7 +414,13 @@ async function runReport() {
 
   try {
     const [insightsRes, statusRes] = await Promise.all([
-      fetch('/api/insights',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,accountId:acctId,datePreset,level})}),
+      fetch('/api/insights',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        token, accountId:acctId,
+        datePreset: datePreset === 'custom' ? 'custom' : datePreset,
+        dateFrom: document.getElementById('dateFrom')?.value || '',
+        dateTo: document.getElementById('dateTo')?.value || '',
+        level
+      })}),
       fetch('/api/adstatus',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,accountId:acctId,level})})
     ]);
     const insightsJson = await insightsRes.json();
@@ -468,12 +484,12 @@ async function runReport() {
     const pausedAds=adsStatusData.filter(a=>a.effective_status!=='ACTIVE');
     document.getElementById('activeCount').textContent='🟢 เปิดอยู่ '+activeAds.length;
     document.getElementById('pausedCount').textContent='⏸ ปิด/หยุด '+pausedAds.length;
-    document.getElementById('statusTableHead').innerHTML='<tr><th style="width:50%">ชื่อ Campaign</th><th>สถานะ</th><th>Effective Status</th></tr>';
+    document.getElementById('statusTableHead').innerHTML='<tr><th style="width:60%">ชื่อ Campaign</th><th>สถานะ</th></tr>';
     document.getElementById('statusTableBody').innerHTML=adsStatusData.length>0
       ?adsStatusData.map(a=>{
         const n=a.campaign_name||a.adset_name||a.name||'-';
         const badge=a.effective_status==='ACTIVE'?'<span class="badge badge-green">🟢 เปิดอยู่</span>':a.effective_status==='PAUSED'?'<span class="badge badge-amber">⏸ หยุดชั่วคราว</span>':'<span class="badge badge-gray">⏹ ปิดแล้ว</span>';
-        return `<tr><td title="${n}">${n}</td><td>${badge}</td><td style="font-size:11px;color:var(--text3)">${a.effective_status||'-'}</td></tr>`;
+        return `<tr><td title="${n}">${n}</td><td>${badge}</td></tr>`;
       }).join('')
       :'<tr><td colspan="3" style="color:var(--text3);text-align:center;padding:1rem">ไม่พบข้อมูลสถานะ</td></tr>';
 
@@ -563,6 +579,10 @@ function renderDetailTable(filter) {
     if (isSales) return `<tr><td title="${name}">${name}</td><td>${statusBadge}</td><td>${fmtB(d.spend)}</td><td>${fmtP(d.ctr)}</td><td>${roas>0?roas.toFixed(2)+'x':'N/A'}</td><td>${purchases>0?fmt(purchases):'N/A'}</td><td>${cpp>0?'฿'+fmtB(cpp):'N/A'}</td></tr>`;
     return `<tr><td title="${name}">${name}</td><td>${statusBadge}</td><td>${fmt(d.reach)}</td><td>${fmt(d.clicks)}</td><td>${fmtB(d.spend)}</td><td>${fmtP(d.ctr)}</td><td>${cpc_d>0?'฿'+fmtB(cpc_d):'N/A'}</td></tr>`;
   }).join('');
+}
+function toggleCustomDate() {
+  const v = document.getElementById('datePreset').value;
+  document.getElementById('customDateRange').style.display = v === 'custom' ? 'block' : 'none';
 }
 function resetBtn() {
   const btn=document.getElementById('runBtn');
