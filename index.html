@@ -8,549 +8,523 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #0a0c10;
-    --bg2: #111318;
-    --bg3: #181b22;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.12);
-    --text: #f0f2f7;
-    --text2: #8b90a0;
-    --text3: #555b6e;
-    --blue: #1877F2;
-    --blue2: #4a9ff5;
-    --green: #22c55e;
-    --amber: #f59e0b;
-    --red: #ef4444;
-    --purple: #a78bfa;
-    --font: 'IBM Plex Sans Thai', sans-serif;
-    --mono: 'IBM Plex Mono', monospace;
-  }
-
-  html { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.6; }
-  body { min-height: 100vh; display: flex; }
-
-  /* Sidebar */
-  .sidebar {
-    width: 220px; min-height: 100vh; background: var(--bg2);
-    border-right: 1px solid var(--border); padding: 1.5rem 1rem;
-    position: fixed; top: 0; left: 0; bottom: 0; z-index: 10;
-    display: flex; flex-direction: column; gap: 0.25rem;
-  }
-  .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; padding: 0 0.5rem; }
-  .logo-icon { width: 32px; height: 32px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .logo-icon svg { width: 18px; height: 18px; fill: white; }
-  .logo-text { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
-  .logo-sub { font-size: 11px; color: var(--text3); }
-  .sidebar-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; padding: 1rem 0.5rem 0.25rem; }
-  .sidebar-item { display: flex; align-items: center; gap: 8px; padding: 0.5rem 0.75rem; border-radius: 7px; font-size: 13px; color: var(--text2); cursor: pointer; transition: all 0.15s; border: none; background: none; width: 100%; text-align: left; }
-  .sidebar-item:hover { background: var(--bg3); color: var(--text); }
-  .sidebar-item.active { background: rgba(24,119,242,0.15); color: var(--blue2); }
-  .sidebar-item svg { width: 15px; height: 15px; flex-shrink: 0; }
-
-  /* Main */
-  .main { margin-left: 220px; flex: 1; padding: 2rem 2.5rem; max-width: 1100px; }
-
-  /* Top bar */
-  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
-  .topbar-title { font-size: 22px; font-weight: 600; color: var(--text); }
-  .topbar-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
-  .status-dot { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--green); }
-  .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  :root { --bg:#0a0c10;--bg2:#111318;--bg3:#181b22;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#f0f2f7;--text2:#8b90a0;--text3:#555b6e;--blue:#1877F2;--blue2:#4a9ff5;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--purple:#a78bfa;--font:'IBM Plex Sans Thai',sans-serif;--mono:'IBM Plex Mono',monospace; }
+  html { background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6; }
+  body { min-height:100vh;display:flex; }
+  .sidebar { width:220px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);padding:1.5rem 1rem;position:fixed;top:0;left:0;bottom:0;z-index:10;display:flex;flex-direction:column;gap:0.25rem; }
+  .sidebar-logo { display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;padding:0 0.5rem; }
+  .logo-icon { width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .logo-icon svg { width:18px;height:18px;fill:white; }
+  .logo-text { font-size:13px;font-weight:600;color:var(--text);line-height:1.2; }
+  .logo-sub { font-size:11px;color:var(--text3); }
+  .sidebar-label { font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;padding:1rem 0.5rem 0.25rem; }
+  .sidebar-item { display:flex;align-items:center;gap:8px;padding:0.5rem 0.75rem;border-radius:7px;font-size:13px;color:var(--text2);cursor:pointer;transition:all 0.15s;border:none;background:none;width:100%;text-align:left; }
+  .sidebar-item:hover { background:var(--bg3);color:var(--text); }
+  .sidebar-item.active { background:rgba(24,119,242,0.15);color:var(--blue2); }
+  .sidebar-item svg { width:15px;height:15px;flex-shrink:0; }
+  .main { margin-left:220px;flex:1;padding:2rem 2.5rem;max-width:1100px; }
+  .page { display:none; }
+  .page.active { display:block; }
+  .topbar { display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem; }
+  .topbar-title { font-size:22px;font-weight:600;color:var(--text); }
+  .topbar-sub { font-size:13px;color:var(--text2);margin-top:2px; }
+  .status-dot { display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green); }
+  .dot-live { width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-  /* Config card */
-  .config-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
-  .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-  .config-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-  .field-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
-  input, select {
-    width: 100%; background: var(--bg3); border: 1px solid var(--border2);
-    border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--text);
-    font-family: var(--font); outline: none; transition: border-color 0.15s;
-  }
-  input:focus, select:focus { border-color: var(--blue); }
-  input::placeholder { color: var(--text3); }
-  select option { background: var(--bg2); }
-
-  .run-btn {
-    width: 100%; padding: 10px 16px; background: var(--blue); color: white;
-    border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
-    cursor: pointer; font-family: var(--font); transition: opacity 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .run-btn:hover { opacity: 0.88; }
-  .run-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-
-  .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 0.75rem; display: none; }
-  .alert.show { display: block; }
-  .alert.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
-  .alert.info { background: rgba(24,119,242,0.1); border: 1px solid rgba(24,119,242,0.25); color: var(--blue2); }
-  .alert.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); color: #86efac; }
-
-  /* Metrics */
-  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
-  .metric-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
-  .metric-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
-  .metric-value { font-size: 22px; font-weight: 600; color: var(--text); font-family: var(--mono); }
-  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
-  .metric-badge { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 20px; margin-top: 4px; font-weight: 500; }
-  .badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
-  .badge-amber { background: rgba(245,158,11,0.15); color: var(--amber); }
-  .badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
-
-  /* Cards */
-  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
-  .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
-  .card-title svg { width: 15px; height: 15px; color: var(--text3); }
-
-  /* Chart */
-  .chart-wrap { position: relative; width: 100%; height: 240px; }
-
-  /* Table */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
-  thead th { text-align: left; padding: 8px 10px; color: var(--text3); font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
-  tbody td { padding: 10px; color: var(--text); border-bottom: 1px solid var(--border); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: rgba(255,255,255,0.02); }
-
-  /* AI Analysis */
-  .ai-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
-  .ai-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
-  .ai-tag { font-size: 11px; background: rgba(167,139,250,0.15); color: var(--purple); padding: 2px 10px; border-radius: 20px; font-weight: 600; }
-  .ai-content { font-size: 14px; color: var(--text2); line-height: 1.8; white-space: pre-wrap; }
-  .ai-content strong, .ai-content b { color: var(--text); font-weight: 600; }
-
-  /* Loading dots */
-  .loading-dots { display: inline-flex; gap: 5px; align-items: center; }
-  .loading-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: bounce 1.2s infinite; }
-  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  .config-card,.card,.ai-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem; }
+  .config-grid { display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem; }
+  .config-row3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem; }
+  .field-label { font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px; }
+  input,select { width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text);font-family:var(--font);outline:none;transition:border-color 0.15s; }
+  input:focus,select:focus { border-color:var(--blue); }
+  input::placeholder { color:var(--text3); }
+  select option { background:var(--bg2); }
+  .divider { border:none;border-top:1px solid var(--border);margin:1rem 0; }
+  .run-btn { width:100%;padding:10px 16px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;gap:8px; }
+  .run-btn:hover { opacity:0.88; }
+  .run-btn:disabled { opacity:0.45;cursor:not-allowed; }
+  .btn { padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);border:none;transition:opacity 0.2s; }
+  .btn:hover { opacity:0.85; }
+  .btn-blue { background:var(--blue);color:white; }
+  .btn-red { background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3); }
+  .btn-ghost { background:var(--bg3);color:var(--text2);border:1px solid var(--border2); }
+  .alert { padding:10px 14px;border-radius:8px;font-size:13px;margin-top:0.75rem;display:none; }
+  .alert.show { display:block; }
+  .alert.error { background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#fca5a5; }
+  .alert.info { background:rgba(24,119,242,0.1);border:1px solid rgba(24,119,242,0.25);color:var(--blue2); }
+  .alert.success { background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:#86efac; }
+  .metrics-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;margin-bottom:1.5rem; }
+  .metric-card { background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem; }
+  .metric-label { font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px; }
+  .metric-value { font-size:22px;font-weight:600;color:var(--text);font-family:var(--mono); }
+  .metric-sub { font-size:11px;color:var(--text3);margin-top:3px; }
+  .card-title { font-size:14px;font-weight:600;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:8px; }
+  .chart-wrap { position:relative;width:100%;height:240px; }
+  .table-wrap { overflow-x:auto; }
+  table { width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed; }
+  thead th { text-align:left;padding:8px 10px;color:var(--text3);font-weight:600;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;border-bottom:1px solid var(--border); }
+  tbody td { padding:10px;color:var(--text);border-bottom:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr:hover td { background:rgba(255,255,255,0.02); }
+  .badge { font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;display:inline-block; }
+  .badge-green { background:rgba(34,197,94,0.15);color:var(--green); }
+  .badge-amber { background:rgba(245,158,11,0.15);color:var(--amber); }
+  .badge-red { background:rgba(239,68,68,0.15);color:var(--red); }
+  .badge-blue { background:rgba(24,119,242,0.15);color:var(--blue2); }
+  .badge-gray { background:rgba(255,255,255,0.08);color:var(--text3); }
+  .ai-header { display:flex;align-items:center;gap:10px;margin-bottom:1rem; }
+  .ai-tag { font-size:11px;background:rgba(167,139,250,0.15);color:var(--purple);padding:2px 10px;border-radius:20px;font-weight:600; }
+  .ai-content { font-size:14px;color:var(--text2);line-height:1.8; }
+  .loading-dots { display:inline-flex;gap:5px;align-items:center; }
+  .loading-dots span { width:6px;height:6px;border-radius:50%;background:var(--text3);animation:bounce 1.2s infinite; }
+  .loading-dots span:nth-child(2) { animation-delay:0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay:0.4s; }
   @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
-
-  .hidden { display: none !important; }
-
-  /* Divider */
-  .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .sidebar { display: none; }
-    .main { margin-left: 0; padding: 1rem; }
-    .config-grid, .config-row3 { grid-template-columns: 1fr; }
-  }
+  .hidden { display:none !important; }
+  .client-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem; }
+  .client-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;cursor:pointer;transition:all 0.15s;position:relative; }
+  .client-card:hover { border-color:var(--blue); }
+  .client-name { font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px; }
+  .client-id { font-size:11px;color:var(--text3);font-family:var(--mono); }
+  .client-actions { display:flex;gap:6px;margin-top:12px; }
+  .client-del { position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px;border-radius:4px; }
+  .client-del:hover { color:var(--red); }
+  .report-item { display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border); }
+  .report-item:last-child { border-bottom:none; }
+  .report-meta { font-size:12px;color:var(--text3);margin-top:2px; }
+  .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:center;justify-content:center; }
+  .modal { background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;width:480px;max-width:90vw; }
+  .modal-title { font-size:16px;font-weight:600;margin-bottom:1rem; }
+  .modal-actions { display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem; }
+  @media (max-width:768px) { .sidebar{display:none;} .main{margin-left:0;padding:1rem;} .config-grid,.config-row3{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
-
 <nav class="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-    </div>
-    <div>
-      <div class="logo-text">Ads Report</div>
-      <div class="logo-sub">TE Digital</div>
-    </div>
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+    <div><div class="logo-text">Ads Report</div><div class="logo-sub">TE Digital</div></div>
   </div>
-
   <div class="sidebar-label">เมนู</div>
-  <button class="sidebar-item active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    Dashboard
+  <button class="sidebar-item active" onclick="showPage('dashboard',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
   </button>
-  <button class="sidebar-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    ลูกค้า
+  <button class="sidebar-item" onclick="showPage('clients',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>ลูกค้า
   </button>
-  <button class="sidebar-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    Reports
+  <button class="sidebar-item" onclick="showPage('reports',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports
   </button>
-
-  <div class="sidebar-label" style="margin-top: auto; padding-top: 1rem;">ระบบ</div>
-  <button class="sidebar-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
-    ตั้งค่า
+  <div class="sidebar-label" style="margin-top:auto">ระบบ</div>
+  <button class="sidebar-item" onclick="showPage('settings',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>ตั้งค่า
   </button>
 </nav>
 
 <main class="main">
-  <div class="topbar">
-    <div>
-      <div class="topbar-title">Facebook Ads Dashboard</div>
-      <div class="topbar-sub">วิเคราะห์ผลโฆษณาด้วย AI อัตโนมัติ — TE Digital Agency</div>
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="topbar">
+      <div><div class="topbar-title">Facebook Ads Dashboard</div><div class="topbar-sub">วิเคราะห์ผลโฆษณาด้วย AI — TE Digital Agency</div></div>
+      <div class="status-dot"><div class="dot-live"></div>Meta API Live</div>
     </div>
-    <div class="status-dot">
-      <div class="dot-live"></div>
-      Meta API Live
-    </div>
-  </div>
-
-  <!-- Config -->
-  <div class="config-card">
-    <div class="config-grid">
-      <div>
-        <div class="field-label">ชื่อลูกค้า</div>
-        <input type="text" id="clientName" placeholder="เช่น Lucius Clinic" />
+    <div class="config-card">
+      <div class="config-grid">
+        <div>
+          <div class="field-label">ชื่อลูกค้า</div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="clientName" placeholder="เช่น Lucius Clinic" style="flex:1" />
+            <button class="btn btn-ghost" onclick="openClientPicker()" style="padding:9px 12px;white-space:nowrap">📋 เลือก</button>
+          </div>
+        </div>
+        <div><div class="field-label">Ad Account ID</div><input type="text" id="adAccountId" placeholder="act_719420100931682" /></div>
       </div>
-      <div>
-        <div class="field-label">Ad Account ID</div>
-        <input type="text" id="adAccountId" placeholder="act_719420100931682" />
+      <div class="config-grid">
+        <div><div class="field-label">Access Token</div><input type="password" id="accessToken" placeholder="EAAxxxxxxxx..." /></div>
+        <div><div class="field-label">Anthropic API Key</div><input type="password" id="anthropicKey" placeholder="sk-ant-xxxxxxxx..." /></div>
       </div>
-    </div>
-    <div class="config-grid">
-      <div>
-        <div class="field-label">Access Token</div>
-        <input type="password" id="accessToken" placeholder="EAAxxxxxxxx..." />
-      </div>
-      <div>
-        <div class="field-label">Anthropic API Key</div>
-        <input type="password" id="anthropicKey" placeholder="sk-ant-xxxxxxxx..." />
-      </div>
-    </div>
-    <hr class="divider" />
-    <div class="config-row3">
-      <div>
-        <div class="field-label">ช่วงเวลา</div>
-        <select id="datePreset">
-          <option value="last_7d">7 วันที่ผ่านมา</option>
-          <option value="last_30d" selected>30 วันที่ผ่านมา</option>
-          <option value="last_90d">90 วันที่ผ่านมา</option>
-          <option value="this_month">เดือนนี้</option>
-          <option value="last_month">เดือนที่แล้ว</option>
-        </select>
-      </div>
-      <div>
-        <div class="field-label">Level</div>
-        <select id="level">
-          <option value="account">Account (ภาพรวม)</option>
-          <option value="campaign">Campaign</option>
-          <option value="adset">Ad Set</option>
-        </select>
-      </div>
-      <div>
-        <div class="field-label" style="opacity:0">-</div>
-        <button class="run-btn" id="runBtn" onclick="runReport()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          ดึงข้อมูล + วิเคราะห์ AI
-        </button>
-      </div>
-    </div>
-    <div class="alert" id="alertMsg"></div>
-  </div>
-
-  <!-- Results -->
-  <div id="resultsSection" class="hidden">
-
-    <div class="metrics-grid" id="metricsGrid"></div>
-
-    <div class="card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        ประสิทธิภาพโฆษณา
-      </div>
-      <div class="chart-wrap">
-        <canvas id="perfChart" role="img" aria-label="กราฟแสดงประสิทธิภาพโฆษณา Facebook"></canvas>
-      </div>
-    </div>
-
-    <div class="card hidden" id="tableCard">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-        รายละเอียด
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:28%">ชื่อ</th>
-              <th>Clicks</th>
-              <th>Spend (฿)</th>
-              <th>CTR</th>
-              <th>ROAS</th>
-              <th>Purchases</th>
-              <th>สถานะ</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="ai-card">
-      <div class="ai-header">
-        <div class="card-title" style="margin:0">วิเคราะห์โดย AI</div>
-        <span class="ai-tag">Claude AI</span>
-      </div>
-      <div class="ai-content" id="aiContent">
-        <div style="display:flex;align-items:center;gap:10px;color:#555b6e;font-size:13px;">
-          กำลังวิเคราะห์
-          <div class="loading-dots"><span></span><span></span><span></span></div>
+      <hr class="divider" />
+      <div class="config-row3">
+        <div>
+          <div class="field-label">ช่วงเวลา</div>
+          <select id="datePreset">
+            <option value="last_7d">7 วันที่ผ่านมา</option>
+            <option value="last_30d" selected>30 วันที่ผ่านมา</option>
+            <option value="last_90d">90 วันที่ผ่านมา</option>
+            <option value="this_month">เดือนนี้</option>
+            <option value="last_month">เดือนที่แล้ว</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">Level</div>
+          <select id="level">
+            <option value="account">Account (ภาพรวม)</option>
+            <option value="campaign">Campaign</option>
+            <option value="adset">Ad Set</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label" style="opacity:0">-</div>
+          <button class="run-btn" id="runBtn" onclick="runReport()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            ดึงข้อมูล + วิเคราะห์ AI
+          </button>
         </div>
       </div>
+      <div class="alert" id="alertMsg"></div>
     </div>
+    <div id="resultsSection" class="hidden">
+      <div id="objectiveBadge" style="font-size:13px;color:#4a9ff5;background:rgba(24,119,242,0.1);border:1px solid rgba(24,119,242,0.2);border-radius:8px;padding:8px 14px;margin-bottom:1rem;display:inline-block;"></div>
+      <div class="metrics-grid" id="metricsGrid"></div>
+      <div class="card">
+        <div class="card-title">
+          สถานะ Ads
+          <span id="activeCount" class="badge badge-green" style="margin-left:auto"></span>
+          <span id="pausedCount" class="badge badge-gray" style="margin-left:4px"></span>
+        </div>
+        <div class="table-wrap"><table><thead id="statusTableHead"></thead><tbody id="statusTableBody"></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-title">ประสิทธิภาพโฆษณา</div>
+        <div class="chart-wrap"><canvas id="perfChart" role="img" aria-label="กราฟประสิทธิภาพโฆษณา"></canvas></div>
+      </div>
+      <div class="card hidden" id="tableCard">
+        <div class="card-title">รายละเอียดแต่ละ Campaign</div>
+        <div class="table-wrap"><table><thead id="detailTableHead"></thead><tbody id="tableBody"></tbody></table></div>
+      </div>
+      <div class="ai-card">
+        <div class="ai-header"><div class="card-title" style="margin:0">วิเคราะห์โดย AI</div><span class="ai-tag">Claude AI</span></div>
+        <div class="ai-content" id="aiContent"></div>
+      </div>
+    </div>
+  </div>
 
+  <!-- CLIENTS -->
+  <div id="page-clients" class="page">
+    <div class="topbar">
+      <div><div class="topbar-title">ลูกค้า</div><div class="topbar-sub">บันทึกข้อมูลลูกค้าแต่ละราย</div></div>
+      <button class="btn btn-blue" onclick="openAddClient()">+ เพิ่มลูกค้าใหม่</button>
+    </div>
+    <div id="clientGrid" class="client-grid"></div>
+    <div id="noClients" style="color:var(--text3);font-size:14px;text-align:center;padding:3rem 0;">ยังไม่มีลูกค้า — กด "เพิ่มลูกค้าใหม่"</div>
+  </div>
+
+  <!-- REPORTS -->
+  <div id="page-reports" class="page">
+    <div class="topbar">
+      <div><div class="topbar-title">Reports</div><div class="topbar-sub">ประวัติการดึงข้อมูล</div></div>
+      <button class="btn btn-red" onclick="clearReports()">ลบทั้งหมด</button>
+    </div>
+    <div class="card"><div id="reportsList"></div></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="page-settings" class="page">
+    <div class="topbar"><div><div class="topbar-title">ตั้งค่า</div><div class="topbar-sub">บันทึก API Keys</div></div></div>
+    <div class="config-card">
+      <div class="field-label">Anthropic API Key (บันทึกไว้ใช้ทุกครั้ง)</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem">
+        <input type="password" id="savedAnthropicKey" placeholder="sk-ant-xxxxxxxx..." />
+        <button class="btn btn-blue" onclick="saveSettings()">บันทึก</button>
+      </div>
+      <div class="alert" id="settingsAlert"></div>
+    </div>
   </div>
 </main>
 
+<!-- Modal Add/Edit Client -->
+<div id="clientModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">เพิ่มลูกค้าใหม่</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><div class="field-label">ชื่อลูกค้า</div><input type="text" id="modal-name" placeholder="เช่น Lucius Clinic" /></div>
+      <div><div class="field-label">Ad Account ID</div><input type="text" id="modal-accountId" placeholder="act_719420100931682" /></div>
+      <div><div class="field-label">Access Token</div><input type="password" id="modal-token" placeholder="EAAxxxxxxxx..." /></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-blue" onclick="saveClient()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Picker -->
+<div id="pickerModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-title">เลือกลูกค้า</div>
+    <div id="pickerList" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;"></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closePicker()">ปิด</button></div>
+  </div>
+</div>
+
 <script>
-let chartInst = null;
+let chartInst = null, editingClientId = null;
 
-function showAlert(msg, type) {
-  const el = document.getElementById('alertMsg');
-  el.textContent = msg;
-  el.className = 'alert show ' + type;
-}
-function hideAlert() {
-  document.getElementById('alertMsg').className = 'alert';
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'clients') renderClients();
+  if (name === 'reports') renderReports();
+  if (name === 'settings') loadSettings();
 }
 
-function fmt(n) { return Math.round(parseFloat(n || 0)).toLocaleString('th-TH'); }
-function fmtB(n) { return parseFloat(n || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function fmtP(n) { return parseFloat(n || 0).toFixed(2) + '%'; }
+function getClients() { try { return JSON.parse(localStorage.getItem('te_clients')||'[]'); } catch { return []; } }
+function saveClients(c) { localStorage.setItem('te_clients', JSON.stringify(c)); }
+function getReports() { try { return JSON.parse(localStorage.getItem('te_reports')||'[]'); } catch { return []; } }
+function saveReports(r) { localStorage.setItem('te_reports', JSON.stringify(r)); }
 
-function getBadge(ctr) {
-  const v = parseFloat(ctr || 0);
-  if (v >= 3) return '<span class="metric-badge badge-green">ดีมาก</span>';
-  if (v >= 2) return '<span class="metric-badge badge-amber">ปกติ</span>';
-  return '<span class="metric-badge badge-red">ต่ำ</span>';
+function renderClients() {
+  const clients = getClients();
+  document.getElementById('noClients').style.display = clients.length ? 'none' : 'block';
+  document.getElementById('clientGrid').innerHTML = clients.map(c => `
+    <div class="client-card">
+      <button class="client-del" onclick="deleteClient('${c.id}')">×</button>
+      <div class="client-name">${c.name}</div>
+      <div class="client-id">${c.accountId}</div>
+      <div class="client-actions">
+        <button class="btn btn-blue" style="font-size:12px;padding:5px 12px" onclick="goToDashboard('${c.id}')">ดู Dashboard</button>
+        <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="openEditClient('${c.id}')">แก้ไข</button>
+      </div>
+    </div>`).join('');
 }
+
+function openAddClient() {
+  editingClientId = null;
+  document.getElementById('modalTitle').textContent = 'เพิ่มลูกค้าใหม่';
+  ['modal-name','modal-accountId','modal-token'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('clientModal').classList.remove('hidden');
+}
+function openEditClient(id) {
+  const c = getClients().find(x => x.id === id); if (!c) return;
+  editingClientId = id;
+  document.getElementById('modalTitle').textContent = 'แก้ไขลูกค้า';
+  document.getElementById('modal-name').value = c.name;
+  document.getElementById('modal-accountId').value = c.accountId;
+  document.getElementById('modal-token').value = c.token || '';
+  document.getElementById('clientModal').classList.remove('hidden');
+}
+function saveClient() {
+  const name = document.getElementById('modal-name').value.trim();
+  const accountId = document.getElementById('modal-accountId').value.trim();
+  const token = document.getElementById('modal-token').value.trim();
+  if (!name || !accountId) return alert('กรุณากรอกชื่อและ Account ID');
+  const clients = getClients();
+  if (editingClientId) {
+    const i = clients.findIndex(c => c.id === editingClientId);
+    if (i > -1) clients[i] = {...clients[i], name, accountId, token};
+  } else {
+    clients.push({id: Date.now().toString(), name, accountId, token, createdAt: new Date().toLocaleDateString('th-TH')});
+  }
+  saveClients(clients); closeModal(); renderClients();
+}
+function deleteClient(id) {
+  if (!confirm('ลบลูกค้านี้?')) return;
+  saveClients(getClients().filter(c => c.id !== id)); renderClients();
+}
+function goToDashboard(id) {
+  const c = getClients().find(x => x.id === id); if (!c) return;
+  document.getElementById('clientName').value = c.name;
+  document.getElementById('adAccountId').value = c.accountId;
+  if (c.token) document.getElementById('accessToken').value = c.token;
+  showPage('dashboard', document.querySelector('.sidebar-item'));
+}
+function closeModal() { document.getElementById('clientModal').classList.add('hidden'); }
+function openClientPicker() {
+  const clients = getClients();
+  document.getElementById('pickerList').innerHTML = clients.length === 0
+    ? '<div style="color:var(--text3);font-size:13px;text-align:center;padding:1rem">ยังไม่มีลูกค้า</div>'
+    : clients.map(c => `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg3);border-radius:8px;cursor:pointer" onclick="pickClient('${c.id}')"><div><div style="font-weight:600;font-size:13px">${c.name}</div><div style="font-size:11px;color:var(--text3)">${c.accountId}</div></div><span style="color:var(--blue2);font-size:12px">เลือก →</span></div>`).join('');
+  document.getElementById('pickerModal').classList.remove('hidden');
+}
+function pickClient(id) {
+  const c = getClients().find(x => x.id === id); if (!c) return;
+  document.getElementById('clientName').value = c.name;
+  document.getElementById('adAccountId').value = c.accountId;
+  if (c.token) document.getElementById('accessToken').value = c.token;
+  closePicker();
+}
+function closePicker() { document.getElementById('pickerModal').classList.add('hidden'); }
+
+function saveSettings() {
+  const key = document.getElementById('savedAnthropicKey').value.trim();
+  if (key) localStorage.setItem('te_anthropic_key', key);
+  const a = document.getElementById('settingsAlert');
+  a.textContent = 'บันทึกแล้ว ✓'; a.className = 'alert show success';
+  setTimeout(() => a.className = 'alert', 2000);
+}
+function loadSettings() {
+  document.getElementById('savedAnthropicKey').value = localStorage.getItem('te_anthropic_key') || '';
+}
+
+function renderReports() {
+  const reports = getReports();
+  document.getElementById('reportsList').innerHTML = reports.length === 0
+    ? '<div style="color:var(--text3);font-size:14px;text-align:center;padding:2rem 0;">ยังไม่มี Report</div>'
+    : reports.slice().reverse().map(r => `<div class="report-item"><div><div style="font-weight:600;font-size:14px">${r.clientName}</div><div class="report-meta">${r.date} · ${r.datePreset} · Spend: ฿${r.spend} · CTR: ${r.ctr}%</div></div><span class="badge badge-blue">${r.objective}</span></div>`).join('');
+}
+function clearReports() {
+  if (!confirm('ลบประวัติ Report ทั้งหมด?')) return;
+  saveReports([]); renderReports();
+}
+
+function fmt(n) { return Math.round(parseFloat(n||0)).toLocaleString('th-TH'); }
+function fmtB(n) { return parseFloat(n||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtP(n) { return parseFloat(n||0).toFixed(2)+'%'; }
+function showAlert(msg,type) { const e=document.getElementById('alertMsg'); e.textContent=msg; e.className='alert show '+type; }
+function hideAlert() { document.getElementById('alertMsg').className='alert'; }
 
 async function runReport() {
   const token = document.getElementById('accessToken').value.trim();
   const acctRaw = document.getElementById('adAccountId').value.trim();
-  const anthropicKey = document.getElementById('anthropicKey').value.trim();
-  const clientName = document.getElementById('clientName').value.trim() || 'ลูกค้า';
+  const savedKey = localStorage.getItem('te_anthropic_key')||'';
+  const anthropicKey = document.getElementById('anthropicKey').value.trim()||savedKey;
+  const clientName = document.getElementById('clientName').value.trim()||'ลูกค้า';
   const datePreset = document.getElementById('datePreset').value;
   const level = document.getElementById('level').value;
-
-  if (!token || !acctRaw) { showAlert('กรุณากรอก Access Token และ Ad Account ID', 'error'); return; }
-
-  const acctId = acctRaw.startsWith('act_') ? acctRaw : 'act_' + acctRaw;
+  if (!token||!acctRaw) { showAlert('กรุณากรอก Access Token และ Ad Account ID','error'); return; }
+  const acctId = acctRaw.startsWith('act_')?acctRaw:'act_'+acctRaw;
   const btn = document.getElementById('runBtn');
   btn.disabled = true;
   btn.innerHTML = '<div class="loading-dots" style="gap:4px"><span></span><span></span><span></span></div> กำลังดึงข้อมูล...';
-  showAlert('กำลังเชื่อมต่อ Meta API...', 'info');
+  showAlert('กำลังเชื่อมต่อ Meta API...','info');
   document.getElementById('resultsSection').classList.add('hidden');
 
   try {
-    const insightsRes = await fetch('/api/insights', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, accountId: acctId, datePreset, level })
-    });
+    const [insightsRes, statusRes] = await Promise.all([
+      fetch('/api/insights',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,accountId:acctId,datePreset,level})}),
+      fetch('/api/adstatus',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,accountId:acctId,level})})
+    ]);
     const insightsJson = await insightsRes.json();
+    const statusJson = await statusRes.json().catch(()=>({data:[]}));
 
-    if (insightsJson.error) {
-      showAlert('Meta API Error: ' + insightsJson.error.message, 'error');
-      resetBtn(); return;
-    }
-
-    const data = insightsJson.data || [];
-    if (data.length === 0) { showAlert('ไม่พบข้อมูลในช่วงเวลานี้', 'error'); resetBtn(); return; }
+    if (insightsJson.error) { showAlert('Meta API Error: '+insightsJson.error.message,'error'); resetBtn(); return; }
+    const data = insightsJson.data||[];
+    if (data.length===0) { showAlert('ไม่พบข้อมูลในช่วงเวลานี้','error'); resetBtn(); return; }
+    const adsStatusData = statusJson.data||[];
 
     hideAlert();
     document.getElementById('resultsSection').classList.remove('hidden');
 
-    let totalReach = 0, totalImp = 0, totalClicks = 0, totalSpend = 0, totalCtr = 0;
-    let totalPurchases = 0, totalPurchaseValue = 0, totalRoas = 0, roasCount = 0;
-    let totalConversations = 0, totalLeads = 0, totalLandingViews = 0;
-
+    let totalReach=0,totalImp=0,totalClicks=0,totalSpend=0,totalCtr=0;
+    let totalPurchases=0,totalPurchaseValue=0,totalRoas=0,roasCount=0;
+    let totalConversations=0,totalLeads=0;
     data.forEach(d => {
-      totalReach += parseInt(d.reach || 0);
-      totalImp += parseInt(d.impressions || 0);
-      totalClicks += parseInt(d.clicks || 0);
-      totalSpend += parseFloat(d.spend || 0);
-      totalCtr += parseFloat(d.ctr || 0);
-      if (d.actions) {
-        d.actions.forEach(a => {
-          if (a.action_type === 'purchase' || a.action_type === 'omni_purchase') totalPurchases += parseInt(a.value || 0);
-          if (a.action_type.includes('total_messaging') || a.action_type.includes('messaging_conversation')) totalConversations += parseInt(a.value || 0);
-          if (a.action_type === 'onsite_conversion.lead' || a.action_type === 'lead') totalLeads += parseInt(a.value || 0);
-          if (a.action_type === 'landing_page_view') totalLandingViews += parseInt(a.value || 0);
-        });
-      }
-      if (d.action_values) {
-        d.action_values.forEach(a => {
-          if (a.action_type === 'purchase' || a.action_type === 'omni_purchase') totalPurchaseValue += parseFloat(a.value || 0);
-        });
-      }
-      if (d.purchase_roas) {
-        d.purchase_roas.forEach(r => { totalRoas += parseFloat(r.value || 0); roasCount++; });
-      }
+      totalReach+=parseInt(d.reach||0); totalImp+=parseInt(d.impressions||0);
+      totalClicks+=parseInt(d.clicks||0); totalSpend+=parseFloat(d.spend||0); totalCtr+=parseFloat(d.ctr||0);
+      if (d.actions) d.actions.forEach(a => {
+        if (a.action_type==='purchase'||a.action_type==='omni_purchase') totalPurchases+=parseInt(a.value||0);
+        if (a.action_type.includes('messaging')) totalConversations+=parseInt(a.value||0);
+        if (a.action_type.includes('lead')) totalLeads+=parseInt(a.value||0);
+      });
+      if (d.action_values) d.action_values.forEach(a => {
+        if (a.action_type==='purchase'||a.action_type==='omni_purchase') totalPurchaseValue+=parseFloat(a.value||0);
+      });
+      if (d.purchase_roas) d.purchase_roas.forEach(r => { totalRoas+=parseFloat(r.value||0); roasCount++; });
     });
+    const avgCtr=totalCtr/data.length, cpm=totalImp>0?(totalSpend/totalImp*1000):0;
+    const cpc=totalClicks>0?(totalSpend/totalClicks):0, avgRoas=roasCount>0?(totalRoas/roasCount):0;
+    const costPerPurchase=totalPurchases>0?(totalSpend/totalPurchases):0;
+    const costPerConversation=totalConversations>0?(totalSpend/totalConversations):0;
+    const costPerLead=totalLeads>0?(totalSpend/totalLeads):0;
+    const isMessages=totalConversations>0, isSales=totalPurchases>0||avgRoas>0;
+    const objectiveLabel=isMessages?'💬 Messages':isSales?'🛒 Sales/Conversion':'🚦 Traffic/Awareness';
+    document.getElementById('objectiveBadge').textContent='Objective: '+objectiveLabel;
 
-    const avgCtr = totalCtr / data.length;
-    const cpm = totalImp > 0 ? (totalSpend / totalImp * 1000) : 0;
-    const cpc = totalClicks > 0 ? (totalSpend / totalClicks) : 0;
-    const avgRoas = roasCount > 0 ? (totalRoas / roasCount) : 0;
-    const costPerPurchase = totalPurchases > 0 ? (totalSpend / totalPurchases) : 0;
-    const costPerConversation = totalConversations > 0 ? (totalSpend / totalConversations) : 0;
-    const costPerLead = totalLeads > 0 ? (totalSpend / totalLeads) : 0;
-
-    // Auto-detect objective
-    const isMessages = totalConversations > 0;
-    const isSales = totalPurchases > 0 || avgRoas > 0;
-    const isTraffic = totalLandingViews > 0 && !isMessages && !isSales;
-
-    let objectiveLabel = 'ภาพรวม';
-    if (isMessages) objectiveLabel = '💬 Messages Campaign';
-    else if (isSales) objectiveLabel = '🛒 Sales / Conversion Campaign';
-    else if (isTraffic) objectiveLabel = '🚦 Traffic Campaign';
-
-    // แสดง objective badge
-    document.getElementById('resultsSection').querySelector('.objective-badge') && document.getElementById('resultsSection').querySelector('.objective-badge').remove();
-    const badge = document.createElement('div');
-    badge.className = 'objective-badge';
-    badge.style.cssText = 'font-size:13px;color:#4a9ff5;background:rgba(24,119,242,0.1);border:1px solid rgba(24,119,242,0.2);border-radius:8px;padding:8px 14px;margin-bottom:1rem;display:inline-block;';
-    badge.textContent = 'Objective ที่ตรวจพบ: ' + objectiveLabel;
-    document.getElementById('metricsGrid').before(badge);
-
-    // Metrics ตาม Objective
-    let metrics = [
-      { label: 'Reach', value: fmt(totalReach), sub: 'คนเห็น' },
-      { label: 'Impressions', value: fmt(totalImp), sub: 'ครั้ง' },
-      { label: 'Clicks', value: fmt(totalClicks), sub: 'คลิก' },
-      { label: 'Spend', value: '฿' + fmtB(totalSpend), sub: 'บาท' },
-      { label: 'CTR', value: fmtP(avgCtr), sub: avgCtr >= 3 ? '✦ ดีมาก' : avgCtr >= 2 ? 'ปกติ' : 'ต่ำ' },
-      { label: 'CPM', value: '฿' + fmtB(cpm), sub: 'ต่อ 1,000 imp' },
-      { label: 'CPC', value: '฿' + fmtB(cpc), sub: 'ต่อคลิก' },
+    let metrics=[
+      {label:'Reach',value:fmt(totalReach),sub:'คนเห็น'},{label:'Impressions',value:fmt(totalImp),sub:'ครั้ง'},
+      {label:'Clicks',value:fmt(totalClicks),sub:'คลิก'},{label:'Spend',value:'฿'+fmtB(totalSpend),sub:'บาท'},
+      {label:'CTR',value:fmtP(avgCtr),sub:avgCtr>=3?'✦ ดีมาก':avgCtr>=2?'ปกติ':'ต่ำ'},
+      {label:'CPM',value:'฿'+fmtB(cpm),sub:'ต่อ 1,000 imp'},{label:'CPC',value:'฿'+fmtB(cpc),sub:'ต่อคลิก'},
     ];
+    if (isMessages) metrics=metrics.concat([
+      {label:'Conversations',value:fmt(totalConversations),sub:'ข้อความ'},
+      {label:'Cost/Conv',value:costPerConversation>0?'฿'+fmtB(costPerConversation):'N/A',sub:'ต้นทุน/สนทนา'},
+      {label:'Leads',value:fmt(totalLeads),sub:'ลีด'},
+      {label:'Cost/Lead',value:costPerLead>0?'฿'+fmtB(costPerLead):'N/A',sub:'ต้นทุน/ลีด'},
+    ]);
+    else if (isSales) metrics=metrics.concat([
+      {label:'ROAS',value:avgRoas>0?avgRoas.toFixed(2)+'x':'N/A',sub:avgRoas>=3?'✦ ดีมาก':avgRoas>=1?'ปกติ':'ต่ำ'},
+      {label:'Purchases',value:fmt(totalPurchases),sub:'ครั้ง'},
+      {label:'Purchase Value',value:totalPurchaseValue>0?'฿'+fmtB(totalPurchaseValue):'N/A',sub:'มูลค่าการซื้อ'},
+      {label:'ต้นทุน/ซื้อ',value:costPerPurchase>0?'฿'+fmtB(costPerPurchase):'N/A',sub:'Cost per Purchase'},
+    ]);
+    document.getElementById('metricsGrid').innerHTML=metrics.map(m=>`<div class="metric-card"><div class="metric-label">${m.label}</div><div class="metric-value">${m.value}</div><div class="metric-sub">${m.sub}</div></div>`).join('');
 
-    if (isMessages) {
-      metrics = metrics.concat([
-        { label: 'Conversations', value: fmt(totalConversations), sub: 'ข้อความ' },
-        { label: 'Cost/Conversation', value: costPerConversation > 0 ? '฿' + fmtB(costPerConversation) : 'N/A', sub: 'ต้นทุน/สนทนา' },
-        { label: 'Leads', value: fmt(totalLeads), sub: 'ลีด' },
-        { label: 'Cost/Lead', value: costPerLead > 0 ? '฿' + fmtB(costPerLead) : 'N/A', sub: 'ต้นทุน/ลีด' },
-      ]);
-    } else if (isSales) {
-      metrics = metrics.concat([
-        { label: 'ROAS', value: avgRoas > 0 ? avgRoas.toFixed(2) + 'x' : 'N/A', sub: avgRoas >= 3 ? '✦ ดีมาก' : avgRoas >= 1 ? 'ปกติ' : 'ต่ำ' },
-        { label: 'Purchases', value: fmt(totalPurchases), sub: 'ครั้ง' },
-        { label: 'Purchase Value', value: totalPurchaseValue > 0 ? '฿' + fmtB(totalPurchaseValue) : 'N/A', sub: 'มูลค่าการซื้อ' },
-        { label: 'ต้นทุน/ซื้อ', value: costPerPurchase > 0 ? '฿' + fmtB(costPerPurchase) : 'N/A', sub: 'Cost per Purchase' },
-      ]);
-    }
+    // Ad Status
+    const activeAds=adsStatusData.filter(a=>a.effective_status==='ACTIVE');
+    const pausedAds=adsStatusData.filter(a=>a.effective_status!=='ACTIVE');
+    document.getElementById('activeCount').textContent='🟢 เปิดอยู่ '+activeAds.length;
+    document.getElementById('pausedCount').textContent='⏸ ปิด/หยุด '+pausedAds.length;
+    document.getElementById('statusTableHead').innerHTML='<tr><th style="width:50%">ชื่อ Campaign</th><th>สถานะ</th><th>Effective Status</th></tr>';
+    document.getElementById('statusTableBody').innerHTML=adsStatusData.length>0
+      ?adsStatusData.map(a=>{
+        const n=a.campaign_name||a.adset_name||a.name||'-';
+        const badge=a.effective_status==='ACTIVE'?'<span class="badge badge-green">🟢 เปิดอยู่</span>':a.effective_status==='PAUSED'?'<span class="badge badge-amber">⏸ หยุดชั่วคราว</span>':'<span class="badge badge-gray">⏹ ปิดแล้ว</span>';
+        return `<tr><td title="${n}">${n}</td><td>${badge}</td><td style="font-size:11px;color:var(--text3)">${a.effective_status||'-'}</td></tr>`;
+      }).join('')
+      :'<tr><td colspan="3" style="color:var(--text3);text-align:center;padding:1rem">ไม่พบข้อมูลสถานะ</td></tr>';
 
-    document.getElementById('metricsGrid').innerHTML = metrics.map(m =>
-      `<div class="metric-card"><div class="metric-label">${m.label}</div><div class="metric-value">${m.value}</div><div class="metric-sub">${m.sub}</div></div>`
-    ).join('');
+    // Chart
+    if (chartInst) chartInst.destroy();
+    const cLabels=data.length>1?data.map((d,i)=>(d.campaign_name||d.adset_name||'C'+(i+1)).substring(0,15)):['Reach÷100','Imp÷100','Clicks','Spend÷100'];
+    const cVals=data.length>1?data.map(d=>parseInt(d.clicks||0)):[Math.round(totalReach/100),Math.round(totalImp/100),totalClicks,Math.round(totalSpend/100)];
+    chartInst=new Chart(document.getElementById('perfChart'),{type:'bar',data:{labels:cLabels,datasets:[{label:'Clicks',data:cVals,backgroundColor:'#1877F2',borderRadius:5,borderSkipped:false},...(data.length>1?[{label:'Spend÷100',data:data.map(d=>Math.round(parseFloat(d.spend||0)/100)),backgroundColor:'#a78bfa',borderRadius:5,borderSkipped:false}]:[])
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b90a0',font:{size:12},boxWidth:10,boxHeight:10}}},scales:{x:{ticks:{color:'#555b6e',font:{size:11},maxRotation:30},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#555b6e',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}}}});
 
-    if (data.length > 1) {
+    // Detail table
+    if (data.length>1) {
       document.getElementById('tableCard').classList.remove('hidden');
-      // Table headers ตาม objective
-      const th = isMessages
-        ? `<tr><th style="width:28%">ชื่อ</th><th>Clicks</th><th>Spend (฿)</th><th>CTR</th><th>Conversations</th><th>Cost/Conv</th><th>Leads</th></tr>`
-        : isSales
-        ? `<tr><th style="width:28%">ชื่อ</th><th>Clicks</th><th>Spend (฿)</th><th>CTR</th><th>ROAS</th><th>Purchases</th><th>ต้นทุน/ซื้อ</th></tr>`
-        : `<tr><th style="width:28%">ชื่อ</th><th>Reach</th><th>Clicks</th><th>Spend (฿)</th><th>CTR</th><th>CPC</th><th>สถานะ</th></tr>`;
-      document.querySelector('#tableCard thead').innerHTML = th;
-
-      document.getElementById('tableBody').innerHTML = data.map(d => {
-        const name = d.campaign_name || d.adset_name || 'ภาพรวม';
-        const conv = d.actions ? d.actions.filter(a => a.action_type.includes('messaging')).reduce((s,a) => s+parseInt(a.value||0),0) : 0;
-        const leads = d.actions ? d.actions.filter(a => a.action_type.includes('lead')).reduce((s,a) => s+parseInt(a.value||0),0) : 0;
-        const purchases = d.actions ? d.actions.filter(a => a.action_type === 'purchase' || a.action_type === 'omni_purchase').reduce((s,a) => s+parseInt(a.value||0),0) : 0;
-        const roas = d.purchase_roas ? d.purchase_roas.reduce((s,r) => s+parseFloat(r.value||0),0) : 0;
-        const cpp = purchases > 0 ? parseFloat(d.spend||0)/purchases : 0;
-        const cpc_d = parseInt(d.clicks||0) > 0 ? parseFloat(d.spend||0)/parseInt(d.clicks||0) : 0;
-        const costConv = conv > 0 ? parseFloat(d.spend||0)/conv : 0;
-
-        if (isMessages) return `<tr>
-          <td title="${name}">${name}</td>
-          <td>${fmt(d.clicks)}</td><td>${fmtB(d.spend)}</td><td>${fmtP(d.ctr)}</td>
-          <td>${conv > 0 ? fmt(conv) : 'N/A'}</td>
-          <td>${costConv > 0 ? '฿'+fmtB(costConv) : 'N/A'}</td>
-          <td>${leads > 0 ? fmt(leads) : 'N/A'}</td></tr>`;
-        if (isSales) return `<tr>
-          <td title="${name}">${name}</td>
-          <td>${fmt(d.clicks)}</td><td>${fmtB(d.spend)}</td><td>${fmtP(d.ctr)}</td>
-          <td>${roas > 0 ? roas.toFixed(2)+'x' : 'N/A'}</td>
-          <td>${purchases > 0 ? fmt(purchases) : 'N/A'}</td>
-          <td>${cpp > 0 ? '฿'+fmtB(cpp) : 'N/A'}</td></tr>`;
-        return `<tr>
-          <td title="${name}">${name}</td>
-          <td>${fmt(d.reach)}</td><td>${fmt(d.clicks)}</td><td>${fmtB(d.spend)}</td>
-          <td>${fmtP(d.ctr)}</td>
-          <td>${cpc_d > 0 ? '฿'+fmtB(cpc_d) : 'N/A'}</td>
-          <td>${getBadge(d.ctr)}</td></tr>`;
+      document.getElementById('detailTableHead').innerHTML=isMessages
+        ?'<tr><th style="width:30%">ชื่อ</th><th>Spend</th><th>CTR</th><th>Conversations</th><th>Cost/Conv</th><th>Leads</th></tr>'
+        :isSales?'<tr><th style="width:30%">ชื่อ</th><th>Spend</th><th>CTR</th><th>ROAS</th><th>Purchases</th><th>ต้นทุน/ซื้อ</th></tr>'
+        :'<tr><th style="width:30%">ชื่อ</th><th>Reach</th><th>Clicks</th><th>Spend</th><th>CTR</th><th>CPC</th></tr>';
+      document.getElementById('tableBody').innerHTML=data.map(d=>{
+        const name=d.campaign_name||d.adset_name||'ภาพรวม';
+        const conv=d.actions?d.actions.filter(a=>a.action_type.includes('messaging')).reduce((s,a)=>s+parseInt(a.value||0),0):0;
+        const leads=d.actions?d.actions.filter(a=>a.action_type.includes('lead')).reduce((s,a)=>s+parseInt(a.value||0),0):0;
+        const purchases=d.actions?d.actions.filter(a=>a.action_type==='purchase'||a.action_type==='omni_purchase').reduce((s,a)=>s+parseInt(a.value||0),0):0;
+        const roas=d.purchase_roas?d.purchase_roas.reduce((s,r)=>s+parseFloat(r.value||0),0):0;
+        const cpp=purchases>0?parseFloat(d.spend||0)/purchases:0;
+        const cpc_d=parseInt(d.clicks||0)>0?parseFloat(d.spend||0)/parseInt(d.clicks||0):0;
+        const costConv=conv>0?parseFloat(d.spend||0)/conv:0;
+        if (isMessages) return `<tr><td title="${name}">${name}</td><td>${fmtB(d.spend)}</td><td>${fmtP(d.ctr)}</td><td>${conv>0?fmt(conv):'N/A'}</td><td>${costConv>0?'฿'+fmtB(costConv):'N/A'}</td><td>${leads>0?fmt(leads):'N/A'}</td></tr>`;
+        if (isSales) return `<tr><td title="${name}">${name}</td><td>${fmtB(d.spend)}</td><td>${fmtP(d.ctr)}</td><td>${roas>0?roas.toFixed(2)+'x':'N/A'}</td><td>${purchases>0?fmt(purchases):'N/A'}</td><td>${cpp>0?'฿'+fmtB(cpp):'N/A'}</td></tr>`;
+        return `<tr><td title="${name}">${name}</td><td>${fmt(d.reach)}</td><td>${fmt(d.clicks)}</td><td>${fmtB(d.spend)}</td><td>${fmtP(d.ctr)}</td><td>${cpc_d>0?'฿'+fmtB(cpc_d):'N/A'}</td></tr>`;
       }).join('');
     }
 
-    if (chartInst) chartInst.destroy();
-    const isDark = true;
-    const labels = data.length > 1 ? data.map((d, i) => (d.campaign_name || d.adset_name || 'C' + (i+1)).substring(0, 18)) : ['Reach ÷100', 'Imp ÷100', 'Clicks', 'Spend ÷100'];
-    const vals = data.length > 1
-      ? data.map(d => parseInt(d.clicks || 0))
-      : [Math.round(totalReach/100), Math.round(totalImp/100), totalClicks, Math.round(totalSpend/100)];
+    // Save report history
+    const rpts=getReports();
+    rpts.push({clientName,date:new Date().toLocaleDateString('th-TH'),datePreset,spend:fmtB(totalSpend),ctr:avgCtr.toFixed(2),objective:objectiveLabel});
+    saveReports(rpts);
 
-    chartInst = new Chart(document.getElementById('perfChart'), {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: data.length > 1 ? 'Clicks' : 'ค่า',
-          data: vals,
-          backgroundColor: '#1877F2',
-          borderRadius: 5,
-          borderSkipped: false
-        }, ...(data.length > 1 ? [{
-          label: 'Spend ÷100',
-          data: data.map(d => Math.round(parseFloat(d.spend || 0) / 100)),
-          backgroundColor: '#a78bfa',
-          borderRadius: 5,
-          borderSkipped: false
-        }] : [])]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#8b90a0', font: { size: 12 }, boxWidth: 10, boxHeight: 10 } } },
-        scales: {
-          x: { ticks: { color: '#555b6e', font: { size: 11 }, maxRotation: 30 }, grid: { color: 'rgba(255,255,255,0.04)' } },
-          y: { ticks: { color: '#555b6e', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
-        }
-      }
-    });
-
-    document.getElementById('aiContent').innerHTML = `<div style="display:flex;align-items:center;gap:10px;color:#555b6e;font-size:13px;">กำลังวิเคราะห์ด้วย Claude AI <div class="loading-dots"><span></span><span></span><span></span></div></div>`;
-
-    btn.innerHTML = '<div class="loading-dots" style="gap:4px"><span></span><span></span><span></span></div> Claude กำลังวิเคราะห์...';
-
-    const analyzeRes = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        adsData: { totalReach, totalImp, totalClicks, totalSpend: totalSpend.toFixed(2), avgCtr: avgCtr.toFixed(2), cpm: cpm.toFixed(2), cpc: cpc.toFixed(2), roas: avgRoas.toFixed(2), purchases: totalPurchases, purchaseValue: totalPurchaseValue.toFixed(2), costPerPurchase: costPerPurchase.toFixed(2), conversations: totalConversations, leads: totalLeads, costPerConversation: costPerConversation.toFixed(2), costPerLead: costPerLead.toFixed(2), objective: objectiveLabel, campaigns: data },
-        clientName,
-        datePreset,
-        anthropicKey
-      })
-    });
-    const analyzeJson = await analyzeRes.json();
-    const aiText = analyzeJson.analysis || analyzeJson.error || 'ไม่สามารถวิเคราะห์ได้';
-
-    const formatted = aiText
-      .replace(/##\s*(.+)/g, '<strong style="color:#f0f2f7;display:block;margin-top:1rem;margin-bottom:0.25rem;font-size:14px;">$1</strong>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#f0f2f7;">$1</strong>')
-      .replace(/\n/g, '<br>');
-    document.getElementById('aiContent').innerHTML = formatted;
-
-  } catch (err) {
-    showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
-  }
-
+    // AI
+    document.getElementById('aiContent').innerHTML='<div style="display:flex;align-items:center;gap:10px;color:#555b6e;font-size:13px;">กำลังวิเคราะห์ด้วย Claude AI <div class="loading-dots"><span></span><span></span><span></span></div></div>';
+    btn.innerHTML='<div class="loading-dots" style="gap:4px"><span></span><span></span><span></span></div> Claude กำลังวิเคราะห์...';
+    if (anthropicKey) {
+      const ar=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({adsData:{totalReach,totalImp,totalClicks,totalSpend:totalSpend.toFixed(2),avgCtr:avgCtr.toFixed(2),cpm:cpm.toFixed(2),cpc:cpc.toFixed(2),roas:avgRoas.toFixed(2),purchases:totalPurchases,conversations:totalConversations,leads:totalLeads,costPerConversation:costPerConversation.toFixed(2),costPerLead:costPerLead.toFixed(2),objective:objectiveLabel},clientName,datePreset,anthropicKey})});
+      const aj=await ar.json();
+      const aiText=aj.analysis||aj.error||'ไม่สามารถวิเคราะห์ได้';
+      document.getElementById('aiContent').innerHTML=aiText.replace(/##\s*(.+)/g,'<strong style="color:#f0f2f7;display:block;margin-top:1rem;margin-bottom:0.25rem;font-size:14px;">$1</strong>').replace(/\*\*(.+?)\*\*/g,'<strong style="color:#f0f2f7;">$1</strong>').replace(/\n/g,'<br>');
+    } else {
+      document.getElementById('aiContent').innerHTML='<span style="color:var(--text3);font-size:13px">กรอก Anthropic API Key ที่ตั้งค่า เพื่อวิเคราะห์ด้วย AI</span>';
+    }
+  } catch(err) { showAlert('เกิดข้อผิดพลาด: '+err.message,'error'); }
   resetBtn();
 }
 
 function resetBtn() {
-  const btn = document.getElementById('runBtn');
-  btn.disabled = false;
-  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg> ดึงข้อมูล + วิเคราะห์ AI`;
+  const btn=document.getElementById('runBtn');
+  btn.disabled=false;
+  btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg> ดึงข้อมูล + วิเคราะห์ AI';
 }
+
+window.addEventListener('load',()=>{
+  const key=localStorage.getItem('te_anthropic_key');
+  if (key) document.getElementById('anthropicKey').value=key;
+});
 </script>
 </body>
 </html>
