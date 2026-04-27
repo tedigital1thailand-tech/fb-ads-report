@@ -5,10 +5,16 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
-    const { token, accountId, datePreset, level } = req.body;
+    const { token, accountId, datePreset, dateFrom, dateTo, level } = req.body;
     if (!token || !accountId) return res.status(400).json({ error: 'Missing token or accountId' });
     const fields = 'campaign_name,adset_name,reach,impressions,clicks,spend,ctr,actions,action_values,purchase_roas';
-    const url = `https://graph.facebook.com/v25.0/${accountId}/insights?fields=${fields}&date_preset=${datePreset||'last_30d'}&level=${level||'account'}&access_token=${token}`;
+    let dateParam = '';
+    if (datePreset === 'custom' && dateFrom && dateTo) {
+      dateParam = `&time_range={"since":"${dateFrom}","until":"${dateTo}"}`;
+    } else {
+      dateParam = `&date_preset=${datePreset || 'last_30d'}`;
+    }
+    const url = `https://graph.facebook.com/v25.0/${accountId}/insights?fields=${fields}${dateParam}&level=${level || 'account'}&access_token=${token}`;
     const response = await fetch(url);
     const data = await response.json();
     return res.status(200).json(data);
