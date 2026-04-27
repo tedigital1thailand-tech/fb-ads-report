@@ -1,8 +1,8 @@
 {
   "version": 2,
   "functions": {
-    "insights.js": { "runtime": "@vercel/node" },
-    "analyze.js": { "runtime": "@vercel/node" }
+    "insights.js": { "runtime": "@vercel/node@3.2.0" },
+    "analyze.js": { "runtime": "@vercel/node@3.2.0" }
   },
   "routes": [
     { "src": "/api/insights", "dest": "/insights.js" },
