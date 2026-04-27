@@ -266,11 +266,12 @@
         <table>
           <thead>
             <tr>
-              <th style="width:32%">ชื่อ</th>
-              <th>Reach</th>
+              <th style="width:28%">ชื่อ</th>
               <th>Clicks</th>
               <th>Spend (฿)</th>
               <th>CTR</th>
+              <th>ROAS</th>
+              <th>Purchases</th>
               <th>สถานะ</th>
             </tr>
           </thead>
@@ -355,38 +356,76 @@ async function runReport() {
     document.getElementById('resultsSection').classList.remove('hidden');
 
     let totalReach = 0, totalImp = 0, totalClicks = 0, totalSpend = 0, totalCtr = 0;
+    let totalPurchases = 0, totalPurchaseValue = 0, totalRoas = 0, roasCount = 0;
     data.forEach(d => {
       totalReach += parseInt(d.reach || 0);
       totalImp += parseInt(d.impressions || 0);
       totalClicks += parseInt(d.clicks || 0);
       totalSpend += parseFloat(d.spend || 0);
       totalCtr += parseFloat(d.ctr || 0);
+      // นับ Purchases จาก actions
+      if (d.actions) {
+        d.actions.forEach(a => {
+          if (a.action_type === 'purchase' || a.action_type === 'omni_purchase') {
+            totalPurchases += parseInt(a.value || 0);
+          }
+        });
+      }
+      // นับ Purchase Value จาก action_values
+      if (d.action_values) {
+        d.action_values.forEach(a => {
+          if (a.action_type === 'purchase' || a.action_type === 'omni_purchase') {
+            totalPurchaseValue += parseFloat(a.value || 0);
+          }
+        });
+      }
+      // ROAS
+      if (d.purchase_roas) {
+        d.purchase_roas.forEach(r => {
+          if (r.action_type === 'omni_purchase' || r.action_type === 'purchase') {
+            totalRoas += parseFloat(r.value || 0);
+            roasCount++;
+          }
+        });
+      }
     });
     const avgCtr = totalCtr / data.length;
     const cpm = totalImp > 0 ? (totalSpend / totalImp * 1000) : 0;
     const cpc = totalClicks > 0 ? (totalSpend / totalClicks) : 0;
+    const avgRoas = roasCount > 0 ? (totalRoas / roasCount) : 0;
+    const costPerPurchase = totalPurchases > 0 ? (totalSpend / totalPurchases) : 0;
 
-    document.getElementById('metricsGrid').innerHTML = [
+    const roasBadge = avgRoas >= 3 ? '✦ ดีมาก' : avgRoas >= 1 ? 'ปกติ' : avgRoas > 0 ? 'ต่ำ' : 'ไม่มีข้อมูล';
+    const metrics = [
       { label: 'Reach', value: fmt(totalReach), sub: 'คนเห็น' },
       { label: 'Impressions', value: fmt(totalImp), sub: 'ครั้ง' },
       { label: 'Clicks', value: fmt(totalClicks), sub: 'คลิก' },
       { label: 'Spend', value: '฿' + fmtB(totalSpend), sub: 'บาท' },
       { label: 'CTR', value: fmtP(avgCtr), sub: avgCtr >= 3 ? '✦ ดีมาก' : avgCtr >= 2 ? 'ปกติ' : 'ต่ำกว่า benchmark' },
+      { label: 'ROAS', value: avgRoas > 0 ? avgRoas.toFixed(2) + 'x' : 'N/A', sub: roasBadge },
+      { label: 'Purchases', value: fmt(totalPurchases), sub: 'ครั้ง' },
+      { label: 'Purchase Value', value: totalPurchaseValue > 0 ? '฿' + fmtB(totalPurchaseValue) : 'N/A', sub: 'มูลค่าการซื้อ' },
+      { label: 'ต้นทุน/ซื้อ', value: costPerPurchase > 0 ? '฿' + fmtB(costPerPurchase) : 'N/A', sub: 'Cost per Purchase' },
       { label: 'CPM', value: '฿' + fmtB(cpm), sub: 'ต่อ 1,000 imp' },
       { label: 'CPC', value: '฿' + fmtB(cpc), sub: 'ต่อคลิก' },
-    ].map(m => `<div class="metric-card"><div class="metric-label">${m.label}</div><div class="metric-value">${m.value}</div><div class="metric-sub">${m.sub}</div></div>`).join('');
+    ];
+    document.getElementById('metricsGrid').innerHTML = metrics.map(m => `<div class="metric-card"><div class="metric-label">${m.label}</div><div class="metric-value">${m.value}</div><div class="metric-sub">${m.sub}</div></div>`).join('');
 
     if (data.length > 1) {
       document.getElementById('tableCard').classList.remove('hidden');
-      document.getElementById('tableBody').innerHTML = data.map(d => `
-        <tr>
+      document.getElementById('tableBody').innerHTML = data.map(d => {
+        const purchases = d.actions ? d.actions.filter(a => a.action_type === 'purchase' || a.action_type === 'omni_purchase').reduce((s, a) => s + parseInt(a.value||0), 0) : 0;
+        const roas = d.purchase_roas ? d.purchase_roas.reduce((s, r) => s + parseFloat(r.value||0), 0) : 0;
+        return `<tr>
           <td title="${d.campaign_name || d.adset_name || 'ภาพรวม'}">${d.campaign_name || d.adset_name || 'ภาพรวม'}</td>
-          <td>${fmt(d.reach)}</td>
           <td>${fmt(d.clicks)}</td>
           <td>${fmtB(d.spend)}</td>
           <td>${fmtP(d.ctr)}</td>
+          <td>${roas > 0 ? roas.toFixed(2) + 'x' : 'N/A'}</td>
+          <td>${purchases > 0 ? fmt(purchases) : 'N/A'}</td>
           <td>${getBadge(d.ctr)}</td>
-        </tr>`).join('');
+        </tr>`;
+      }).join('');
     }
 
     if (chartInst) chartInst.destroy();
@@ -432,7 +471,7 @@ async function runReport() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        adsData: { totalReach, totalImp, totalClicks, totalSpend: totalSpend.toFixed(2), avgCtr: avgCtr.toFixed(2), cpm: cpm.toFixed(2), cpc: cpc.toFixed(2), campaigns: data },
+        adsData: { totalReach, totalImp, totalClicks, totalSpend: totalSpend.toFixed(2), avgCtr: avgCtr.toFixed(2), cpm: cpm.toFixed(2), cpc: cpc.toFixed(2), roas: avgRoas.toFixed(2), purchases: totalPurchases, purchaseValue: totalPurchaseValue.toFixed(2), costPerPurchase: costPerPurchase.toFixed(2), campaigns: data },
         clientName,
         datePreset,
         anthropicKey
