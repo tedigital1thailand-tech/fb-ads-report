@@ -161,7 +161,8 @@
             <option value="last_month">เดือนที่แล้ว</option>
             <option value="custom">กำหนดเอง</option>
           </select>
-          <div id="customDateRange" style="display:none;margin-top:8px;display:none">
+          <!-- FIX: removed duplicate display:none -->
+          <div id="customDateRange" style="display:none;margin-top:8px">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <div><div class="field-label">วันเริ่ม</div><input type="date" id="dateFrom" /></div>
               <div><div class="field-label">วันสิ้นสุด</div><input type="date" id="dateTo" /></div>
@@ -404,7 +405,16 @@ async function runReport() {
   const clientName = document.getElementById('clientName').value.trim()||'ลูกค้า';
   const datePreset = document.getElementById('datePreset').value;
   const level = document.getElementById('level').value;
+  const dateFrom = document.getElementById('dateFrom').value;
+  const dateTo = document.getElementById('dateTo').value;
+
   if (!token||!acctRaw) { showAlert('กรุณากรอก Access Token และ Ad Account ID','error'); return; }
+
+  // Validate custom date
+  if (datePreset === 'custom' && (!dateFrom || !dateTo)) {
+    showAlert('กรุณาเลือกวันเริ่มต้นและวันสิ้นสุด','error'); return;
+  }
+
   const acctId = acctRaw.startsWith('act_')?acctRaw:'act_'+acctRaw;
   const btn = document.getElementById('runBtn');
   btn.disabled = true;
@@ -415,10 +425,11 @@ async function runReport() {
   try {
     const [insightsRes, statusRes] = await Promise.all([
       fetch('/api/insights',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        token, accountId:acctId,
-        datePreset: datePreset === 'custom' ? 'custom' : datePreset,
-        dateFrom: document.getElementById('dateFrom')?.value || '',
-        dateTo: document.getElementById('dateTo')?.value || '',
+        token,
+        accountId: acctId,
+        datePreset: datePreset,   // ส่ง 'custom' หรือ preset ตรงๆ
+        dateFrom: dateFrom,
+        dateTo: dateTo,
         level
       })}),
       fetch('/api/adstatus',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,accountId:acctId,level})})
@@ -507,7 +518,6 @@ async function runReport() {
         ?'<tr><th style="width:28%">ชื่อ</th><th>สถานะ</th><th>Spend</th><th>CTR</th><th>Conversations</th><th>Cost/Conv</th><th>Leads</th></tr>'
         :isSales?'<tr><th style="width:28%">ชื่อ</th><th>สถานะ</th><th>Spend</th><th>CTR</th><th>ROAS</th><th>Purchases</th><th>ต้นทุน/ซื้อ</th></tr>'
         :'<tr><th style="width:28%">ชื่อ</th><th>สถานะ</th><th>Reach</th><th>Clicks</th><th>Spend</th><th>CTR</th><th>CPC</th></tr>';
-      // Match status from adsStatusData
       const statusMap = {};
       adsStatusData.forEach(a => {
         const k = a.campaign_name||a.adset_name||a.name||'';
@@ -523,7 +533,8 @@ async function runReport() {
 
     // Save report history
     const rpts=getReports();
-    rpts.push({clientName,date:new Date().toLocaleDateString('th-TH'),datePreset,spend:fmtB(totalSpend),ctr:avgCtr.toFixed(2),objective:objectiveLabel});
+    const dateLabel = datePreset === 'custom' ? `${dateFrom} ถึง ${dateTo}` : datePreset;
+    rpts.push({clientName,date:new Date().toLocaleDateString('th-TH'),datePreset:dateLabel,spend:fmtB(totalSpend),ctr:avgCtr.toFixed(2),objective:objectiveLabel});
     saveReports(rpts);
 
     // AI
