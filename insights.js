@@ -11,15 +11,22 @@ export default async function handler(req, res) {
 
     const fields = 'campaign_name,adset_name,reach,impressions,clicks,spend,ctr,actions,action_values,purchase_roas';
 
-    let dateParam = '';
+    // Build params safely with URLSearchParams (handles encoding automatically)
+    const params = new URLSearchParams();
+    params.set('fields', fields);
+    params.set('level', level || 'account');
+    params.set('access_token', token);
+
+    // FIX: custom date → use time_range only, never send date_preset
     if (datePreset === 'custom' && dateFrom && dateTo) {
-      // FIX: encode time_range correctly, do NOT send date_preset
-      dateParam = `&time_range=${encodeURIComponent(JSON.stringify({ since: dateFrom, until: dateTo }))}`;
+      params.set('time_range', JSON.stringify({ since: dateFrom, until: dateTo }));
     } else {
-      dateParam = `&date_preset=${datePreset || 'last_30d'}`;
+      params.set('date_preset', datePreset || 'last_30d');
     }
 
-    const url = `https://graph.facebook.com/v25.0/${accountId}/insights?fields=${fields}${dateParam}&level=${level || 'account'}&access_token=${token}`;
+    console.log('[insights] datePreset:', datePreset, '| dateFrom:', dateFrom, '| dateTo:', dateTo);
+
+    const url = `https://graph.facebook.com/v25.0/${accountId}/insights?${params.toString()}`;
     const response = await fetch(url);
     const data = await response.json();
     return res.status(200).json(data);
