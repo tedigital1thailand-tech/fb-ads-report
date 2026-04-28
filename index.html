@@ -15,8 +15,6 @@
   .sidebar-logo { display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;padding:0 0.5rem; }
   .logo-icon { width:38px;height:38px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 12px rgba(24,119,242,0.4); }
   .logo-icon svg { width:20px;height:20px;fill:white; }
-  .logo-text { font-size:13px;font-weight:600;color:var(--text);line-height:1.2; }
-  .logo-sub { font-size:11px;color:var(--text3); }
   .sidebar-label { font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;padding:1rem 0.5rem 0.25rem; }
   .sidebar-item { display:flex;align-items:center;gap:8px;padding:0.5rem 0.75rem;border-radius:7px;font-size:13px;color:var(--text2);cursor:pointer;transition:all 0.15s;border:none;background:none;width:100%;text-align:left; }
   .sidebar-item:hover { background:var(--bg3);color:var(--text); }
@@ -153,21 +151,13 @@
       <div class="config-row3">
         <div>
           <div class="field-label">ช่วงเวลา</div>
-          <select id="datePreset" onchange="toggleCustomDate()">
+          <select id="datePreset">
             <option value="last_7d">7 วันที่ผ่านมา</option>
             <option value="last_30d" selected>30 วันที่ผ่านมา</option>
             <option value="last_90d">90 วันที่ผ่านมา</option>
             <option value="this_month">เดือนนี้</option>
             <option value="last_month">เดือนที่แล้ว</option>
-            <option value="custom">กำหนดเอง</option>
           </select>
-          <!-- FIX: removed duplicate display:none -->
-          <div id="customDateRange" style="display:none;margin-top:8px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-              <div><div class="field-label">วันเริ่ม</div><input type="date" id="dateFrom" /></div>
-              <div><div class="field-label">วันสิ้นสุด</div><input type="date" id="dateTo" /></div>
-            </div>
-          </div>
         </div>
         <div>
           <div class="field-label">Level</div>
@@ -405,15 +395,8 @@ async function runReport() {
   const clientName = document.getElementById('clientName').value.trim()||'ลูกค้า';
   const datePreset = document.getElementById('datePreset').value;
   const level = document.getElementById('level').value;
-  const dateFrom = document.getElementById('dateFrom').value;
-  const dateTo = document.getElementById('dateTo').value;
 
   if (!token||!acctRaw) { showAlert('กรุณากรอก Access Token และ Ad Account ID','error'); return; }
-
-  // Validate custom date
-  if (datePreset === 'custom' && (!dateFrom || !dateTo)) {
-    showAlert('กรุณาเลือกวันเริ่มต้นและวันสิ้นสุด','error'); return;
-  }
 
   const acctId = acctRaw.startsWith('act_')?acctRaw:'act_'+acctRaw;
   const btn = document.getElementById('runBtn');
@@ -425,12 +408,7 @@ async function runReport() {
   try {
     const [insightsRes, statusRes] = await Promise.all([
       fetch('/api/insights',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        token,
-        accountId: acctId,
-        datePreset: datePreset,   // ส่ง 'custom' หรือ preset ตรงๆ
-        dateFrom: dateFrom,
-        dateTo: dateTo,
-        level
+        token, accountId:acctId, datePreset, level
       })}),
       fetch('/api/adstatus',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,accountId:acctId,level})})
     ]);
@@ -490,7 +468,6 @@ async function runReport() {
     ]);
     document.getElementById('metricsGrid').innerHTML=metrics.map(m=>`<div class="metric-card"><div class="metric-label">${m.label}</div><div class="metric-value">${m.value}</div><div class="metric-sub">${m.sub}</div></div>`).join('');
 
-    // Ad Status
     const activeAds=adsStatusData.filter(a=>a.effective_status==='ACTIVE');
     const pausedAds=adsStatusData.filter(a=>a.effective_status!=='ACTIVE');
     document.getElementById('activeCount').textContent='🟢 เปิดอยู่ '+activeAds.length;
@@ -502,16 +479,14 @@ async function runReport() {
         const badge=a.effective_status==='ACTIVE'?'<span class="badge badge-green">🟢 เปิดอยู่</span>':a.effective_status==='PAUSED'?'<span class="badge badge-amber">⏸ หยุดชั่วคราว</span>':'<span class="badge badge-gray">⏹ ปิดแล้ว</span>';
         return `<tr><td title="${n}">${n}</td><td>${badge}</td></tr>`;
       }).join('')
-      :'<tr><td colspan="3" style="color:var(--text3);text-align:center;padding:1rem">ไม่พบข้อมูลสถานะ</td></tr>';
+      :'<tr><td colspan="2" style="color:var(--text3);text-align:center;padding:1rem">ไม่พบข้อมูลสถานะ</td></tr>';
 
-    // Chart
     if (chartInst) chartInst.destroy();
     const cLabels=data.length>1?data.map((d,i)=>(d.campaign_name||d.adset_name||'C'+(i+1)).substring(0,15)):['Reach÷100','Imp÷100','Clicks','Spend÷100'];
     const cVals=data.length>1?data.map(d=>parseInt(d.clicks||0)):[Math.round(totalReach/100),Math.round(totalImp/100),totalClicks,Math.round(totalSpend/100)];
     chartInst=new Chart(document.getElementById('perfChart'),{type:'bar',data:{labels:cLabels,datasets:[{label:'Clicks',data:cVals,backgroundColor:'#1877F2',borderRadius:5,borderSkipped:false},...(data.length>1?[{label:'Spend÷100',data:data.map(d=>Math.round(parseFloat(d.spend||0)/100)),backgroundColor:'#a78bfa',borderRadius:5,borderSkipped:false}]:[])
     ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b90a0',font:{size:12},boxWidth:10,boxHeight:10}}},scales:{x:{ticks:{color:'#555b6e',font:{size:11},maxRotation:30},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#555b6e',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}}}});
 
-    // Detail table
     if (data.length>1) {
       document.getElementById('tableCard').classList.remove('hidden');
       document.getElementById('detailTableHead').innerHTML=isMessages
@@ -531,13 +506,10 @@ async function runReport() {
       renderDetailTable('all');
     }
 
-    // Save report history
     const rpts=getReports();
-    const dateLabel = datePreset === 'custom' ? `${dateFrom} ถึง ${dateTo}` : datePreset;
-    rpts.push({clientName,date:new Date().toLocaleDateString('th-TH'),datePreset:dateLabel,spend:fmtB(totalSpend),ctr:avgCtr.toFixed(2),objective:objectiveLabel});
+    rpts.push({clientName,date:new Date().toLocaleDateString('th-TH'),datePreset,spend:fmtB(totalSpend),ctr:avgCtr.toFixed(2),objective:objectiveLabel});
     saveReports(rpts);
 
-    // AI
     document.getElementById('aiContent').innerHTML='<div style="display:flex;align-items:center;gap:10px;color:#555b6e;font-size:13px;">กำลังวิเคราะห์ด้วย Claude AI <div class="loading-dots"><span></span><span></span><span></span></div></div>';
     btn.innerHTML='<div class="loading-dots" style="gap:4px"><span></span><span></span><span></span></div> Claude กำลังวิเคราะห์...';
     if (anthropicKey) {
@@ -590,10 +562,6 @@ function renderDetailTable(filter) {
     if (isSales) return `<tr><td title="${name}">${name}</td><td>${statusBadge}</td><td>${fmtB(d.spend)}</td><td>${fmtP(d.ctr)}</td><td>${roas>0?roas.toFixed(2)+'x':'N/A'}</td><td>${purchases>0?fmt(purchases):'N/A'}</td><td>${cpp>0?'฿'+fmtB(cpp):'N/A'}</td></tr>`;
     return `<tr><td title="${name}">${name}</td><td>${statusBadge}</td><td>${fmt(d.reach)}</td><td>${fmt(d.clicks)}</td><td>${fmtB(d.spend)}</td><td>${fmtP(d.ctr)}</td><td>${cpc_d>0?'฿'+fmtB(cpc_d):'N/A'}</td></tr>`;
   }).join('');
-}
-function toggleCustomDate() {
-  const v = document.getElementById('datePreset').value;
-  document.getElementById('customDateRange').style.display = v === 'custom' ? 'block' : 'none';
 }
 function resetBtn() {
   const btn=document.getElementById('runBtn');
